@@ -138,11 +138,17 @@ button{
         <div class="shape"></div>
     </div>
     <form method="POST", action="">
-        <h3>Login Here</h3>
         {{ form.hidden_tag() }}
+        <h3>Login Here</h3>
         <label>Username</label>
         {{ form.username }}
-
+        {% with messages = get_flashed_messages() %}
+{% if messages %}
+    <div >
+        {{ messages[0] }}
+    </div>
+{% endif %}
+{% endwith %}
         <label>Password</label>
         {{ form.password }}
 

@@ -138,8 +138,9 @@ button{
         <div class="shape"></div>
     </div>
     <form method="POST", action="">
-        <h3>Register Here</h3>
         {{ form.hidden_tag() }}
+        <h3>Register Here</h3>
+
         <label>Username</label>
         {{ form.username }}
         {% for field, errors in form.errors.items() %}
