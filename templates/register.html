@@ -142,7 +142,11 @@ button{
         {{ form.hidden_tag() }}
         <label>Username</label>
         {{ form.username }}
-
+        {% for field, errors in form.errors.items() %}
+    <small class="form-text text-muted ">
+        {{ ', '.join(errors) }}
+    </small>
+    {% endfor %}
         <label>Password</label>
         {{ form.password }}
 
