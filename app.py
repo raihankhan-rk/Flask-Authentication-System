@@ -1,10 +1,25 @@
 from flask import Flask, render_template
+from flask_sqlalchemy import SQLAlchemy
+from flask_login import UserMixin
+from flask_wtf import FlaskForm
+from wtforms import StringField, PasswordField, SubmitField
+from wtforms.validators import ValidationError, InputRequired, Length
 
 app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
+db = SQLAlchemy(app)
+app.config['SECRET_KEY'] = 'MedBaseSecretKey'
+
+class User(db.Model, UserMixin):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(20), nullable=False, unique=True)
+    password = db.Column(db.String(80), nullable=False)
+
+
 
 @app.route('/')
 def home():
-    return render_template('home.html')
+    return render_template('home.ht ml')
 
 @app.route('/login')
 def login():
