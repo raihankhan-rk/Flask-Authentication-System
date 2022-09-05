@@ -58,6 +58,9 @@ def logout():
 
 @app.route('/login', methods=["GET", "POST"])
 def login():
+    if current_user.is_authenticated:
+        return redirect(url_for('dashboard'))
+
     form = LoginForm()
 
     if form.validate_on_submit():
@@ -75,6 +78,8 @@ def login():
 
 @app.route('/register', methods=["GET", "POST"])
 def register():
+    if current_user.is_authenticated:
+        return redirect(url_for('dashboard'))
     form = RegistrationForm()
 
     if form.validate_on_submit():
