@@ -1,45 +1,48 @@
 from flask import Flask, render_template, redirect, url_for, flash
-from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin, LoginManager, login_user, login_required, current_user, logout_user
-from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField
-from wtforms.validators import ValidationError, InputRequired, Length
 from flask_bcrypt import Bcrypt
+from firebase import *
+from firebase_admin import auth
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
-db = SQLAlchemy(app)
-app.config['SECRET_KEY'] = 'MedBaseSecretKey'
+app.config['SECRET_KEY'] = 'FlaskAuth'
 bcrypt = Bcrypt(app)
+
+
+db = Database.initializedatabase()
+collection = db.collection('users')
 
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "login"
 
 @login_manager.user_loader
-def load_user(user_id):
-    return User.query.get(int(user_id))
+def load_user(email):
+    return auth.get_user_by_email(email)
 
 
-class User(db.Model, UserMixin):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(20), nullable=False, unique=True)
-    password = db.Column(db.String(80), nullable=False)
+def createUserinDB(email, name, age, phone):
+    res = collection.document(email).set({  # insert document
+        'Name': name,
+        'Age': age,
+        'Phone': phone,
+        'Email': email,
+    })
 
-class RegistrationForm(FlaskForm):
-    username = StringField(validators=[InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "Username"})
-    password = PasswordField(validators=[InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "Password"})
-    submit = SubmitField("Register")
 
-    def validate_username(self, username):
-        existing_user_username = User.query.filter_by(username=username.data).first()
-        if existing_user_username:
-            raise ValidationError("That username already exists! Try a different one.")
+# user = collection.document("iamrk98@gmail.com").get().to_dict()
 
-class LoginForm(FlaskForm):
-    username = StringField(validators=[InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "Username"})
-    password = PasswordField(validators=[InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "Password"})
-    submit = SubmitField("Login")
+def signup(_email, _phone_number, _password, _name, _age):
+
+    new_user = auth.create_user(
+        email=_email,
+        phone_number=_phone_number,
+        password=_password,
+        display_name=_name,
+    )
+
+    res = createUserinDB(_email, new_user.display_name, _age, new_user.phone_number)
+
 
 @app.route('/')
 def home():
@@ -63,33 +66,32 @@ def login():
 
     form = LoginForm()
 
-    if form.validate_on_submit():
-        user = User.query.filter_by(username=form.username.data).first()
+    auth.sign
         if user:
-            if bcrypt.check_password_hash(user.password, form.password.data):
-                login_user(user)
-                return redirect(url_for('dashboard'))
-            else:
-                flash("Incorrect Password! Please Try again")
-        else:
-            flash("This email is not registered. Try Signing Up!")
+            auth.
+    #             login_user(user)
+    #             return redirect(url_for('dashboard'))
+    #         else:
+    #             flash("Incorrect Password! Please Try again")
+    #     else:
+    #         flash("This email is not registered. Try Signing Up!")
 
-    return render_template('login.html', form=form)
+    return render_template('login.html')
 
 @app.route('/register', methods=["GET", "POST"])
 def register():
-    if current_user.is_authenticated:
-        return redirect(url_for('dashboard'))
-    form = RegistrationForm()
+    # if current_user.is_authenticated:
+    #     return redirect(url_for('dashboard'))
+    # form = RegistrationForm()
+    #
+    # if form.validate_on_submit():
+    #     hashed_password = bcrypt.generate_password_hash(form.password.data)
+    #     new_user = User(username=form.username.data, password=hashed_password)
+    #     db.session.add(new_user)
+    #     db.session.commit()
+    #     return redirect(url_for('login'))
 
-    if form.validate_on_submit():
-        hashed_password = bcrypt.generate_password_hash(form.password.data)
-        new_user = User(username=form.username.data, password=hashed_password)
-        db.session.add(new_user)
-        db.session.commit()
-        return redirect(url_for('login'))
-
-    return render_template('register.html', form=form)
+    return render_template('signup.html')
 
 if __name__ == '__main__':
     app.run(debug=True)

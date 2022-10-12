@@ -137,26 +137,15 @@ button{
         <div class="shape"></div>
         <div class="shape"></div>
     </div>
-    <form method="POST", action="">
-        {{ form.hidden_tag() }}
+    <form action="http://127.0.0.1:5000/result" method="POST">
         <h3>Login Here</h3>
-        <label>Username</label>
-        {{ form.username }}
-        {% with messages = get_flashed_messages() %}
-{% if messages %}
-    <div >
-        {{ messages[0] }}
-    </div>
-{% endif %}
-{% endwith %}
-        <label>Password</label>
-        {{ form.password }}
-
-        {{ form.submit }}
+      <input type="email" id="login" class="fadeIn second" name="email" placeholder="email">
+        <div></div>
+      <input type="password" id="password" class="fadeIn third" name="pass" placeholder="password">
+      <input type="submit" class="fadeIn fourth" value="Log In">
         <div class="social">
-          <a href="{{ url_for('register') }}">Don't have an account? Sign Up!</a>
+          <a href="{{ url_for('signup') }}">Don't have an account? Sign Up!</a>
         </div>
-    </form>
 </body>
 </html>
 
